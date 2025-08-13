@@ -7,7 +7,7 @@ generator = pipeline("text-generation", model="distilgpt2")  # Smaller & faster 
 
 def Generate_Linkedin_Post(prompt:str, max_length: int = 200):
 
-    outputs= generator(prompt, max_length= max_length, num_return_sequences= 1,
+    outputs= generator(prompt, max_new_tokens = max_length, num_return_sequences= 1,
                        truncation=True,  pad_token_id= generator.model.config.eos_token_id,
                        temperature=0.7, top_p=0.9,
                        repetition_penalty=1.2, do_sample=True)
