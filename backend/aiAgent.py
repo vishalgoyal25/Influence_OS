@@ -1,12 +1,17 @@
 from transformers import pipeline
 from database import sessionLocal, GeneratedLinkedinPost
 
-generator = pipeline("text-generation", model="gpt2")
+print("Loading AI model... Please wait.")
+generator = pipeline("text-generation", model="distilgpt2")  # Smaller & faster model
 
 
-def Generate_Linkedin_Post(prompt:str, max_length= 200):
+def Generate_Linkedin_Post(prompt:str, max_length: int = 200):
 
-    outputs= generator(prompt, max_length=max_length)
+    outputs= generator(prompt, max_length= max_length, num_return_sequences= 1,
+                       truncation=True,  pad_token_id= generator.model.config.eos_token_id,
+                       temperature=0.7, top_p=0.9,
+                       repetition_penalty=1.2, do_sample=True)
+
     post_content = outputs[0]['generated_text']
 
     db= sessionLocal()
@@ -19,11 +24,15 @@ def Generate_Linkedin_Post(prompt:str, max_length= 200):
     return post_content
 
 
-if __name__=="__main__":
 
-    sample_prompt = "Write a short LinkedIn post about AI trends in 2025 for fintech professionals."
-    print("Generating post...\n")
 
-    post = Generate_Linkedin_Post(sample_prompt)
-    print("Generated Post:-", post)
+# Optional standalone test mode-->>
+
+# if __name__=="__main__":
+
+#     sample_prompt = "Write a short LinkedIn post about AI trends in 2025 for fintech professionals."
+#     print("Generating post...\n")
+
+#     post = Generate_Linkedin_Post(sample_prompt)
+#     print("Generated Post:-", post)
 
