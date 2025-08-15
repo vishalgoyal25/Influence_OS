@@ -26,7 +26,10 @@ app.include_router(linkedin_api.router, prefix="/linkedin")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5500"
+    ],
     allow_credentials= True,
     allow_methods=["*"],
     allow_headers=["*"],
