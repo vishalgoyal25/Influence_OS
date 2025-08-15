@@ -1,5 +1,5 @@
 from transformers import pipeline
-from database import sessionLocal, GeneratedLinkedinPost
+from backend.database import sessionLocal, GeneratedLinkedinPost
 
 print("Loading AI model... Please wait.")
 generator = pipeline("text-generation", model="distilgpt2")  # Smaller & faster model

@@ -17,3 +17,7 @@ sqlite-utils
 streamlit
 requests
 plotly
+
+authlib
+starlette
+itsdangerous

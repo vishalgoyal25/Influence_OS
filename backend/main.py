@@ -1,24 +1,42 @@
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
+print("CLIENT_ID from env:", os.environ.get("LINKEDIN_CLIENT_ID"))
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from database import sessionLocal, GeneratedLinkedinPost
-from aiAgent import Generate_Linkedin_Post
-
+from backend.database import sessionLocal, GeneratedLinkedinPost
+from backend.aiAgent import Generate_Linkedin_Post
+from backend import linkedin_api
 
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+
 app = FastAPI(title="Linkedin AI Agent API", version="1.0")
+
+# Add session middleware for OAuth token storage
+app.add_middleware(SessionMiddleware,
+                   secret_key=os.environ.get("SESSION_SECRET_KEY", "supersecret"))
+
+# Include LinkedIn OAuth routes with prefix '/linkedin'
+app.include_router(linkedin_api.router, prefix="/linkedin")
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8000"],
     allow_credentials= True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+from typing import Optional
 class PromptRequest(BaseModel):
-    prompt : str | None = None
-    max_length : int = 200
+    prompt: Optional[str] = None
+    max_length: int = 200
 
 @app.get("/")
 def home():
@@ -40,4 +58,3 @@ def GetPosts():
 
     return [{"ID":p.id, "CONTENT":p.content, "SCHEDULE_TIME":p.schedule_time} 
             for p in posts]
-
