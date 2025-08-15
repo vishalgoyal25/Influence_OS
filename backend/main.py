@@ -61,3 +61,8 @@ def GetPosts():
 
     return [{"ID":p.id, "CONTENT":p.content, "SCHEDULE_TIME":p.schedule_time} 
             for p in posts]
+
+
+from backend.linkedin_post import router as linkedin_post_router
+# Include your LinkedIn post API routes
+app.include_router(linkedin_post_router)
