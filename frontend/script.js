@@ -3,6 +3,9 @@ let latestGeneratedPost = "";
 // Generate LinkedIn post using backend AI
 async function generatePost() {
     const prompt = document.getElementById("prompt").value;
+    const postType = document.getElementById("postType").value;
+    const tone = document.getElementById("tone").value;
+
     const resultDiv = document.getElementById("result");
     if (!prompt.trim()) {
         resultDiv.innerHTML = "<b>Please enter a prompt.</b>";
@@ -15,7 +18,9 @@ async function generatePost() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 prompt: prompt,          //  match backend parameter
-                max_length: 200          //  optional, backend will default if missing
+                max_length: 200,          //  optional, backend will default if missing
+                post_type: postType,
+                tone: tone
             })
         });
         if (!response.ok) {
@@ -23,8 +28,10 @@ async function generatePost() {
         }
         const data = await response.json();
         resultDiv.innerHTML = `<b>Generated Post:</b><br>${data["Generated Post"]}`;
+
         // Store the latestGeneratedPost (optional if using in postToLinkedIn)
         latestGeneratedPost = data["Generated Post"];
+        
         document.getElementById("linkedinBtn").disabled = false; // Allow posting
     } catch (error) {
         console.error(error);

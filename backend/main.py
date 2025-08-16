@@ -39,6 +39,8 @@ from typing import Optional
 class PromptRequest(BaseModel):
     prompt: Optional[str] = None
     max_length: int = 200
+    post_type: str = None
+    tone: str = None
 
 @app.get("/")
 def home():
@@ -46,9 +48,15 @@ def home():
 
 @app.post("/generatepost")
 def GeneratePost(request: PromptRequest):
-    post_content= Generate_Linkedin_Post(request.prompt, request.max_length)
+    post_content= Generate_Linkedin_Post(prompt=request.prompt,
+                                        max_length=request.max_length,
+                                        post_type=request.post_type,
+                                        tone=request.tone)
 
-    return {"Prompt": request.prompt, "Generated Post": post_content }
+    return {"Prompt": request.prompt,
+            "PostType":request.post_type,
+            "Tone":request.tone,
+            "Generated Post": post_content }
 
 
 @app.get("/getposts")
@@ -58,7 +66,7 @@ def GetPosts():
 
     db.close()
 
-    return [{"ID":p.id, "CONTENT":p.content, "SCHEDULE_TIME":p.schedule_time} 
+    return [{"ID":p.id, "CONTENT":p.content, "SCHEDULE_TIME":p.scheduled_time} 
             for p in posts]
 
 

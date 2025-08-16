@@ -6,7 +6,8 @@ from backend.database import SessionLocal, GeneratedLinkedinPost
 
 import requests
 
-def Generate_Linkedin_Post(prompt:str, max_length: int = 200):
+def Generate_Linkedin_Post(prompt:str, max_length: int = 200,
+                           post_type: str = None, tone: str = None):
 
     # outputs= generator(prompt, max_new_tokens = max_length, num_return_sequences= 1,
     #                    truncation=True,  pad_token_id= generator.model.config.eos_token_id,
@@ -15,10 +16,25 @@ def Generate_Linkedin_Post(prompt:str, max_length: int = 200):
 
     # post_content = outputs[0]['generated_text']
 
+    # Build enhanced prompt with post_type and tone context
+    details = []
+    if post_type:
+        details.append(f"Post type: {post_type}.")
+    if tone:
+        details.append(f"Tone: {tone}.")
+
+    full_prompt = "Generate a LinkedIn post."
+
+    if details:
+        full_prompt += " " + " ".join(details)
+
+    if prompt:
+        full_prompt += f" Topic/Context: {prompt}"
+
     url = "http://localhost:11434/api/generate"
     payload = {
         "model": "gemma:2b",
-        "prompt": prompt,
+        "prompt": full_prompt,
         "max_tokens": max_length,
         "stream": False
     }
@@ -29,7 +45,7 @@ def Generate_Linkedin_Post(prompt:str, max_length: int = 200):
 
     post_content = result.get("response", "")
 
-    # Save to DB
+    # Save Generated Post to DB
     db= SessionLocal()
     newPost = GeneratedLinkedinPost(content= post_content)
     db.add(newPost)

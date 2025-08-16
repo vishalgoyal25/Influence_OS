@@ -32,9 +32,28 @@
 
 <body>
   <h1>LinkedIn Post Generator</h1>
-  
+
   <!-- Post Generation Section -->
-  <textarea id="prompt" placeholder="Enter your LinkedIn post prompt here..."></textarea><br>
+  <textarea id="prompt" placeholder="Enter your LinkedIn Post Prompt here..."></textarea><br>
+  
+  <label for="postType">Post Type:</label>
+  <select id="postType">
+    <option value="">Select type (optional)</option>
+    <option value="status update">Status Update</option>
+    <option value="article">Article</option>
+    <option value="poll">Poll</option>
+    <option value="carousel">Carousel</option>
+  </select>
+
+  <label for="tone">Tone:</label>
+  <select id="tone">
+    <option value="">Select tone (optional)</option>
+    <option value="professional">Professional</option>
+    <option value="friendly">Friendly</option>
+    <option value="motivational">Motivational</option>
+    <option value="informative">Informative</option>
+  </select>
+
   <button onclick="generatePost()">Generate Post</button>
   <div class="result" id="result"></div>
   
