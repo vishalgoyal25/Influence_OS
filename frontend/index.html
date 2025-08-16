@@ -29,75 +29,37 @@
         }
     </style>
 </head>
+
 <body>
-    <h1>LinkedIn Post Generator</h1>
-    <textarea id="prompt" placeholder="Enter your LinkedIn post prompt here..."></textarea><br>
-    <button onclick="generatePost()">Generate Post</button>
+  <h1>LinkedIn Post Generator</h1>
+  
+  <!-- Post Generation Section -->
+  <textarea id="prompt" placeholder="Enter your LinkedIn post prompt here..."></textarea><br>
+  <button onclick="generatePost()">Generate Post</button>
+  <div class="result" id="result"></div>
+  
+  <!-- Industry Research Section -->
+  <div>
+    <h3>Industry Research</h3>
+    <input type="text" id="industryKeyword" placeholder="Enter industry keyword" />
+    <button onclick="fetchIndustryNews()">Search</button>
+  </div>
+  <div id="newsResults" style="margin-top: 20px;"></div>
 
-    <div class="result" id="result"></div>
+  <!-- LinkedIn Login Section -->
+  <button onclick="window.location.href='http://localhost:8000/linkedin/login'">
+    Login with your LinkedIn Account
+  </button>
 
-    <script src="script.js"></script>
-
-    <button onclick="window.location.href='http://localhost:8000/linkedin/login'">
-    Login with LinkedIn </button>
-
-
-
-<textarea id="postText" placeholder="Write your LinkedIn post here"></textarea><br>
-<button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
-<p id="message"></p>
-
-<script>
-  function postToLinkedIn() {
-    var postText = document.getElementById("postText").value;
-
-    fetch("http://localhost:8000/linkedin/post", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify({ text: postText })
-    })
-    .then(response => response.json().then(data => ({status: response.status, body: data})))
-    .then(result => {
-      if (result.status === 200 || result.status === 201) {
-        document.getElementById("message").textContent = "Success! Your post was published on LinkedIn.";
-        document.getElementById("message").style.color = "green";
-      } else {
-        document.getElementById("message").textContent = "Error: " + JSON.stringify(result.body.detail || result.body);
-        document.getElementById("message").style.color = "red";
-      }
-    })
-    .catch(error => {
-      document.getElementById("message").textContent = "Network error: " + error;
-      document.getElementById("message").style.color = "red";
-    });
-  }
-</script>
+  <!-- Manual Post Section -->
+  <textarea id="postText" placeholder="Write your LinkedIn post here"></textarea><br>
+  <button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
+  <p id="message"></p>
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  <script src="script.js"></script>
 </body>
 </html>
