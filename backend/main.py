@@ -2,8 +2,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
-print("CLIENT_ID from env:", os.environ.get("LINKEDIN_CLIENT_ID"))
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 
