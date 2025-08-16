@@ -38,6 +38,9 @@
   <button onclick="generatePost()">Generate Post</button>
   <div class="result" id="result"></div>
   
+  <!-- Filling the Generated Post to Scheduling Post Text Area-->
+  <button onclick="fillScheduledPost()">Schedule This Generated Post</button>
+  
   <!-- Industry Research Section -->
   <div>
     <h3>Industry Research</h3>
@@ -56,6 +59,19 @@
   <button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
   <p id="message"></p>
 
+  <!-- Scheduling Posts Section-->
+  <div>
+  <h3>Content Calendar & Scheduling</h3>
+  <textarea id="calendarPostContent" placeholder="Enter post content here..."></textarea><br>
+  <input type="datetime-local" id="calendarPostDateTime" /><br>
+  <button onclick="schedulePost()">Schedule Post</button>
+  </div>
+
+  <!-- Viewing Posts Section-->
+  <div>
+    <h4>Scheduled Posts</h4>
+    <ul id="scheduledPostsList"></ul>
+  </div>
 
 
 

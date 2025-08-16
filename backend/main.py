@@ -5,7 +5,7 @@ import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from backend.database import sessionLocal, GeneratedLinkedinPost
+from backend.database import SessionLocal, GeneratedLinkedinPost
 from backend.aiAgent import Generate_Linkedin_Post
 from backend import linkedin_api
 
@@ -53,7 +53,7 @@ def GeneratePost(request: PromptRequest):
 
 @app.get("/getposts")
 def GetPosts():
-    db= sessionLocal()
+    db= SessionLocal()
     posts = db.query(GeneratedLinkedinPost).all()
 
     db.close()
@@ -62,11 +62,14 @@ def GetPosts():
             for p in posts]
 
 
-# Include your LinkedIn post API routes
+# Including LinkedIn Post API routes
 from backend.linkedin_post import router as linkedin_post_router
 app.include_router(linkedin_post_router)
 
-# Include your Industry_News API routes
+# Including Industry_News API routes
 from backend.industry_news import router as industry_news_router
 app.include_router(industry_news_router)
 
+# Including Content Calender API routes
+from backend.content_calendar import router as content_calendar_router
+app.include_router(content_calendar_router)
