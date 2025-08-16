@@ -4,7 +4,6 @@ import os
 
 # This file will encapsulate the OAuth flow and profile fetching.
 
-
 from fastapi import APIRouter, Request, HTTPException
 from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
@@ -13,8 +12,6 @@ router = APIRouter()
 
 # Initialize OAuth client for LinkedIn
 oauth = OAuth()
-print("Loaded CLIENT_ID:", os.environ.get("LINKEDIN_CLIENT_ID"))
-print("Loaded CLIENT_SECRET:", os.environ.get("LINKEDIN_CLIENT_SECRET"))
 oauth.register(
     name='linkedin',
     client_id=os.environ.get("LINKEDIN_CLIENT_ID"),
@@ -27,11 +24,10 @@ oauth.register(
     }
 )
 
-
 @router.get("/login")
 async def linkedin_login(request: Request):
 # Redirect the user to LinkedIn's OAuth login page.
-    
+
     redirect_uri = "http://localhost:8000/linkedin/auth"
 
     print(redirect_uri)
@@ -39,7 +35,6 @@ async def linkedin_login(request: Request):
 
 @router.get("/auth", name="linkedin_auth")
 async def linkedin_auth(request: Request):
-    print("Session contents at /auth:", request.session)
 # OAuth callback from LinkedIn — this exchanges the code for an access token.
     try:
         token = await oauth.linkedin.authorize_access_token(
