@@ -18,10 +18,8 @@ app = FastAPI(title="Linkedin AI Agent API", version="1.0")
 app.add_middleware(SessionMiddleware,
                    secret_key=os.environ.get("SESSION_SECRET_KEY", "supersecret"))
 
-# Include LinkedIn OAuth routes with prefix '/linkedin'
-app.include_router(linkedin_api.router, prefix="/linkedin")
 
-
+# Add CORS middleware for local development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -32,6 +30,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include LinkedIn OAuth routes with prefix '/linkedin'
+app.include_router(linkedin_api.router, prefix="/linkedin")
 
 
 from typing import Optional
@@ -61,6 +62,11 @@ def GetPosts():
             for p in posts]
 
 
-from backend.linkedin_post import router as linkedin_post_router
 # Include your LinkedIn post API routes
+from backend.linkedin_post import router as linkedin_post_router
 app.include_router(linkedin_post_router)
+
+# Include your Industry_News API routes
+from backend.industry_news import router as industry_news_router
+app.include_router(industry_news_router)
+
