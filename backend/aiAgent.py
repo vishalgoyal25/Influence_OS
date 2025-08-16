@@ -17,7 +17,7 @@ def Generate_Linkedin_Post(prompt:str, max_length: int = 200):
 
     url = "http://localhost:11434/api/generate"
     payload = {
-        "model": "mistral:7b",
+        "model": "gemma:2b",
         "prompt": prompt,
         "max_tokens": max_length,
         "stream": False
