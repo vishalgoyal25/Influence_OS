@@ -97,3 +97,78 @@ async function fetchIndustryNews() {
         resultDiv.innerHTML = `<b>Error fetching news:</b> ${error.message}`;
     }
 }
+
+
+// Scheduling Post (Content Calender)
+
+async function schedulePost() {
+  const content = document.getElementById("calendarPostContent").value.trim();
+  const scheduledTimeStr = document.getElementById("calendarPostDateTime").value;
+
+  if (!content || !scheduledTimeStr) {
+    alert("Please enter post content and select a scheduled time.");
+    return;
+  }
+
+  const scheduled_time = new Date(scheduledTimeStr);
+  if (isNaN(scheduled_time)) {
+    alert("Please enter a valid date and time.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8000/schedulepost", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: content,
+        scheduled_time: scheduled_time.toISOString()
+      })
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Post scheduled successfully!");
+      loadScheduledPosts();
+      // Clear inputs after scheduling
+      document.getElementById("calendarPostContent").value = "";
+      document.getElementById("calendarPostDateTime").value = "";
+    } else {
+      const errorMsg = data.detail || data.message || JSON.stringify(data);
+
+      console.log(data);
+
+      alert("Error scheduling post: " + errorMsg);
+    }
+  } catch (error) {
+    alert("Network error: " + error.message);
+  }
+}
+
+// Viewing all Scheduled Posts. ( It runs automatically when the page finishes loading.)
+
+async function loadScheduledPosts() {
+  try {
+    const response = await fetch("http://localhost:8000/scheduledposts");
+    const posts = await response.json();
+
+    const list = document.getElementById("scheduledPostsList");
+    list.innerHTML = "";
+
+    posts.forEach(post => {
+      const li = document.createElement("li");
+      li.textContent = `${new Date(post.scheduled_time).toLocaleString()}: ${post.content}`;
+      list.appendChild(li);
+    });
+  } catch (error) {
+    alert("Failed to load scheduled posts: " + error.message);
+  }
+}
+// Load posts on page load ( It runs automatically when the page finishes loading.)
+window.onload = loadScheduledPosts;
+
+// <!-- Filling the Generated Post to Scheduling Post Text Area-->
+function fillScheduledPost() {
+  document.getElementById("calendarPostContent").value = latestGeneratedPost;
+  document.getElementById("calendarPostDateTime").focus();
+}
