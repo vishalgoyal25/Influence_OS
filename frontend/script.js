@@ -179,3 +179,79 @@ function fillScheduledPost() {
   document.getElementById("calendarPostContent").value = latestGeneratedPost;
   document.getElementById("calendarPostDateTime").focus();
 }
+
+// Show user profile summary on index.html
+async function displayProfileOnIndex() {
+    try {
+        const res = await fetch('http://127.0.0.1:8000/profile');
+        if (!res.ok) {
+            document.getElementById('profileSummary').innerHTML = `
+                <h3>Welcome!</h3>
+                <p>No profile set. <a href="profile.html" style="color:#0073b1;">Set up your profile</a></p>
+            `;
+            return;
+        }
+        const data = await res.json();
+
+        document.getElementById('profileSummary').innerHTML = `
+            <h3>Welcome, ${data.name || 'User'}!</h3>
+            <p><strong>Industry:</strong> ${data.industry || 'N/A'}</p>
+            <p><strong>Keywords:</strong> ${data.keywords || 'N/A'}</p>
+            <a href="profile.html" style="color:#0073b1;">Edit Profile</a>
+        `;
+    } catch {
+        document.getElementById('profileSummary').innerHTML = `
+            <h3>Welcome!</h3>
+            <p>Profile unavailable.</p>
+        `;
+    }
+}
+
+// Auto-run on index.html
+if (document.getElementById('profileSummary')) {
+    window.onload = function() {
+        displayProfileOnIndex();
+        // call other init functions here if needed
+    };
+}
+
+
+// Profile form handling (for profile.html)
+if (document.getElementById('profileForm')) {
+    document.getElementById('profileForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const keywords = document.getElementById('keywords').value.trim();
+        const industry = document.getElementById('industry').value.trim();
+        const messageDiv = document.getElementById('message');
+
+        const profileData = { name, keywords, industry };
+
+        messageDiv.innerText = "Profile saved! Redirecting to home...";
+        try {
+            const response = await fetch('http://127.0.0.1:8000/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(profileData),
+            });
+            if (!response.ok) throw new Error('Failed to save profile.');
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1200); // 1.2 seconds confirmation then redirect
+        } catch (error) {
+            messageDiv.innerText = "Error: " + error.message;
+        }
+    });
+
+    // Optional: fill profile form with existing values
+    window.onload = async function() {
+        try {
+            const res = await fetch('http://127.0.0.1:8000/profile');
+            if (!res.ok) return;
+            const data = await res.json();
+            document.getElementById('name').value = data.name || "";
+            document.getElementById('keywords').value = data.keywords || "";
+            document.getElementById('industry').value = data.industry || "";
+        } catch {}
+    };
+}

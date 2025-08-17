@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile Setup</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; max-width: 500px; }
+        label { display: block; margin-top: 20px; }
+        input, textarea, button { width: 100%; padding: 8px; margin-top: 5px; }
+        button { background: #0073b1; color: #fff; border: none; border-radius: 4px; margin-top: 20px; }
+        #message { margin-top: 20px; }
+    </style>
+</head>
+
+<body>
+    <h2>Set Up Your Profile</h2>
+    <form id="profileForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required />
+
+        <label for="keywords">Keywords (skills, interests):</label>
+        <input type="text" id="keywords" />
+
+        <label for="industry">Industry:</label>
+        <textarea id="industry" rows="3"></textarea>
+
+        <button type="submit">Save Profile</button>
+    </form>
+    <div id="message"></div>
+    <script src="script.js"></script>
+</body>
+</html>

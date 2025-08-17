@@ -12,6 +12,10 @@ from backend import linkedin_api
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+from fastapi import Depends, HTTPException
+from sqlalchemy.orm import Session
+from backend.database import UserProfile, get_db
+
 app = FastAPI(title="Linkedin AI Agent API", version="1.0")
 
 # Add session middleware for OAuth token storage
@@ -81,3 +85,36 @@ app.include_router(industry_news_router)
 # Including Content Calender API routes
 from backend.content_calendar import router as content_calendar_router
 app.include_router(content_calendar_router)
+
+
+
+
+class ProfileInput(BaseModel):
+    name: str
+    keywords: str = ""
+    industry: str = ""
+
+@app.post("/profile")
+def save_profile(profile: ProfileInput, db: Session = Depends(get_db)):
+    # Always update/insert profile with id = 1 (single user version)
+    existing = db.query(UserProfile).filter(UserProfile.id == 1).first()
+    if existing:
+        existing.name = profile.name
+        existing.keywords = profile.keywords
+        existing.industry = profile.industry
+    else:
+        new_profile = UserProfile(id=1, name=profile.name, keywords=profile.keywords, industry=profile.industry)
+        db.add(new_profile)
+    db.commit()
+    return {"message": "Profile saved"}
+
+@app.get("/profile")
+def get_profile(db: Session = Depends(get_db)):
+    profile = db.query(UserProfile).filter(UserProfile.id == 1).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    return {
+        "name": profile.name,
+        "keywords": profile.keywords,
+        "industry": profile.industry
+    }
