@@ -36,28 +36,37 @@
     Loading profile... </div>
 
   <!-- Post Generation Section -->
-  <textarea id="prompt" placeholder="Enter your LinkedIn Post Prompt here..."></textarea><br>
-  
-  <label for="postType">Post Type:</label>
-  <select id="postType">
-    <option value="">Select type (optional)</option>
-    <option value="status update">Status Update</option>
-    <option value="article">Article</option>
-    <option value="poll">Poll</option>
-    <option value="carousel">Carousel</option>
-  </select>
+  <div>
+      <label for="prompt">Post Topic or Prompt:</label><br>
+      <textarea id="prompt" rows="4" cols="50" placeholder="Enter post topic or prompt here..."></textarea>
+  </div>
 
-  <label for="tone">Tone:</label>
-  <select id="tone">
-    <option value="">Select tone (optional)</option>
-    <option value="professional">Professional</option>
-    <option value="friendly">Friendly</option>
-    <option value="motivational">Motivational</option>
-    <option value="informative">Informative</option>
-  </select>
+  <div>
+      <label for="postType">Post Type:</label>
+      <select id="postType">
+          <option value="">Select type (optional)</option>
+          <option value="Status Update">Status Update</option>
+          <option value="Article">Article</option>
+          <option value="Poll">Poll</option>
+          <option value="Carousel">Carousel</option>
+      </select>
 
-  <button onclick="generatePost()">Generate Post</button>
-  <div class="result" id="result"></div>
+      <label for="tone" style="margin-left: 20px;">Tone:</label>
+      <select id="tone">
+          <option value="">Select tone (optional)</option>
+          <option value="Professional">Professional</option>
+          <option value="Friendly">Friendly</option>
+          <option value="Motivational">Motivational</option>
+          <option value="Informative">Informative</option>
+      </select>
+  </div>
+
+  <div style="margin-top:15px;">
+      <button onclick="generatePost()">Generate Post</button>
+  </div>
+
+  <div id="result" style="margin-top:20px; white-space: pre-wrap; min-height: 100px; border: 1px solid #ccc; padding: 10px;"></div>
+
   
   <!-- Filling the Generated Post to Scheduling Post Text Area-->
   <button onclick="fillScheduledPost()">Schedule This Generated Post</button>

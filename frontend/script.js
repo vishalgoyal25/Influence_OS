@@ -1,28 +1,51 @@
 let latestGeneratedPost = "";
 
+
+// Fetch Profile data from backend
+async function fetchProfile() {
+    try {
+        const res = await fetch('http://127.0.0.1:8000/profile');
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+}
+
+
 // Generate LinkedIn post using backend AI
 async function generatePost() {
-    const prompt = document.getElementById("prompt").value;
+    const prompt = document.getElementById("prompt").value.trim();
     const postType = document.getElementById("postType").value;
     const tone = document.getElementById("tone").value;
 
     const resultDiv = document.getElementById("result");
-    if (!prompt.trim()) {
+    if (!prompt) {
         resultDiv.innerHTML = "<b>Please enter a prompt.</b>";
         return;
     }
     resultDiv.innerHTML = " Generating post... Please wait.";
+
+    // Fetch saved profile data
+    const profile = await fetchProfile();
+
+    const payload = {
+        prompt: prompt,
+        max_length: 200,
+        post_type: postType,
+        tone: tone,
+        name: profile?.name || "",
+        keywords: profile?.keywords || "",
+        industry: profile?.industry || ""
+    };
+
     try {
         const response = await fetch("http://127.0.0.1:8000/generatepost", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                prompt: prompt,          //  match backend parameter
-                max_length: 200,          //  optional, backend will default if missing
-                post_type: postType,
-                tone: tone
-            })
+            body: JSON.stringify(payload)
         });
+        
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }

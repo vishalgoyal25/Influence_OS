@@ -46,13 +46,53 @@ class PromptRequest(BaseModel):
     post_type: str = None
     tone: str = None
 
+    # Add profile info fields optional to accept frontend data if sent
+    name: str = ""
+    keywords: str = ""
+    industry: str = ""
+
 @app.get("/")
 def home():
     return {"message": "Welcome to the LinkedIn AI Agent API"}
 
 @app.post("/generatepost")
-def GeneratePost(request: PromptRequest):
-    post_content= Generate_Linkedin_Post(prompt=request.prompt,
+def GeneratePost(request: PromptRequest, db: Session = Depends(get_db)):
+
+    # Fetch profile from DB if not provided in request
+    if not (request.name and request.keywords and request.industry):
+        profile = db.query(UserProfile).filter(UserProfile.id == 1).first()
+        if profile:
+            name = profile.name
+            keywords = profile.keywords or ""
+            industry = profile.industry or ""
+        else:
+            name, keywords, industry = "", "", ""
+    else:
+        name = request.name
+        keywords = request.keywords
+        industry = request.industry
+
+    # Build enhanced prompt including profile info
+    details = []
+    if request.post_type:
+        details.append(f"Post Type: {request.post_type}.")
+    if request.tone:
+        details.append(f"Tone: {request.tone}.")
+    if name:
+        details.append(f"User Name: {name}.")
+    if industry:
+        details.append(f"Industry: {industry}.")
+    if keywords:
+        details.append(f"Keywords/Skills: {keywords}.")
+
+    full_prompt = "Generate a LinkedIn post."
+    if details:
+        full_prompt += " " + " ".join(details)
+    if request.prompt:
+        full_prompt += f" Topic/Context: {request.prompt}"
+    
+    # Generate post with AI
+    post_content= Generate_Linkedin_Post(prompt=full_prompt,
                                         max_length=request.max_length,
                                         post_type=request.post_type,
                                         tone=request.tone)
@@ -60,6 +100,10 @@ def GeneratePost(request: PromptRequest):
     return {"Prompt": request.prompt,
             "PostType":request.post_type,
             "Tone":request.tone,
+            
+            "Name": name,
+            "Keywords": keywords,
+            "Industry": industry,
             "Generated Post": post_content }
 
 

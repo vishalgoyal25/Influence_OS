@@ -7,7 +7,7 @@ from backend.database import SessionLocal, GeneratedLinkedinPost
 import requests
 
 def Generate_Linkedin_Post(prompt:str, max_length: int = 200,
-                           post_type: str = None, tone: str = None):
+                           post_type: str = None, tone: str = None) -> str:
 
     # outputs= generator(prompt, max_new_tokens = max_length, num_return_sequences= 1,
     #                    truncation=True,  pad_token_id= generator.model.config.eos_token_id,
