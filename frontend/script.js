@@ -1,6 +1,5 @@
 let latestGeneratedPost = "";
 
-
 // Fetch Profile data from backend
 async function fetchProfile() {
     try {
@@ -12,21 +11,19 @@ async function fetchProfile() {
     }
 }
 
-
 // Generate LinkedIn post using backend AI
 async function generatePost() {
     const prompt = document.getElementById("prompt").value.trim();
     const postType = document.getElementById("postType").value;
     const tone = document.getElementById("tone").value;
-
     const resultDiv = document.getElementById("result");
+
     if (!prompt) {
         resultDiv.innerHTML = "<b>Please enter a prompt.</b>";
         return;
     }
     resultDiv.innerHTML = " Generating post... Please wait.";
 
-    // Fetch saved profile data
     const profile = await fetchProfile();
 
     const payload = {
@@ -52,10 +49,10 @@ async function generatePost() {
         const data = await response.json();
         resultDiv.innerHTML = `<b>Generated Post:</b><br>${data["Generated Post"]}`;
 
-        // Store the latestGeneratedPost (optional if using in postToLinkedIn)
+        // Store the latestGeneratedPost for posting/scheduling
         latestGeneratedPost = data["Generated Post"];
         
-        document.getElementById("linkedinBtn").disabled = false; // Allow posting
+        document.getElementById("linkedinBtn").disabled = false; // Enable LinkedIn post button
     } catch (error) {
         console.error(error);
         resultDiv.innerHTML = " Oops, Error: Could not connect to backend.";
@@ -88,119 +85,122 @@ async function postToLinkedIn() {
     } catch (error) {
         resultDiv.innerHTML += "<br><b>Network error posting to LinkedIn.</b>";
     }
-    linkedinBtn.disabled = false; // Enable button again
+    linkedinBtn.disabled = false; // Re-enable button
 }
 
 // Fetch industry news/articles from backend API
 async function fetchIndustryNews() {
-    const keyword = document.getElementById("industryKeyword").value.trim();
-    if (!keyword) {
+    const resultDiv = document.getElementById("newsResults");
+    const industryInput = document.getElementById("industryKeyword");
+    const keywordValue = industryInput ? industryInput.value.trim() : "";
+
+    if (!keywordValue) {
         alert("Please enter an industry keyword.");
         return;
     }
-    const resultDiv = document.getElementById("newsResults");
+
     resultDiv.innerHTML = "Loading news...";
+
     try {
-        const response = await fetch(`http://localhost:8000/industry-news?keyword=${encodeURIComponent(keyword)}`);
+        const response = await fetch(`http://127.0.0.1:8000/industry-news?keyword=${encodeURIComponent(keywordValue)}`);
         const data = await response.json();
+
         if (data.error) {
             resultDiv.innerHTML = `<b>Error:</b> ${data.error}`;
             return;
         }
-        if (!data.articles.length) {
+        if (!data.articles || !data.articles.length) {
             resultDiv.innerHTML = "No articles found.";
             return;
         }
-        let html = `<h4>News on '${data.keyword}':</h4><ul>`;
+
+        let html = "<ul style='list-style:none; padding-left:0;'>";
         data.articles.forEach(article => {
-            html += `
-                <li>
-                    <a href="${article.url}" target="_blank">${article.title}</a>
-                    <p>${article.description || ""}</p>
-                    <small>Source: ${article.source} | Published: ${new Date(article.publishedAt).toLocaleString()}</small>
-                </li>
-            `;
+            html += `<li style="margin-bottom: 15px;">
+                <a href="${article.url}" target="_blank" style="font-weight:bold; color:#0073b1;">${article.title}</a><br/>
+                <small>${article.description || ''}</small><br/>
+                <small><i>Source:</i> ${article.source} | <i>Published:</i> ${new Date(article.publishedAt).toLocaleString()}</small>
+            </li>`;
         });
         html += "</ul>";
+
         resultDiv.innerHTML = html;
     } catch (error) {
-        resultDiv.innerHTML = `<b>Error fetching news:</b> ${error.message}`;
+        resultDiv.innerHTML = "Failed to fetch news. Please try again later.";
+        console.error(error);
     }
 }
 
 
-// Scheduling Post (Content Calender)
-
+// Scheduling Post (Content Calendar)
 async function schedulePost() {
-  const content = document.getElementById("calendarPostContent").value.trim();
-  const scheduledTimeStr = document.getElementById("calendarPostDateTime").value;
+    const content = document.getElementById("calendarPostContent").value.trim();
+    const scheduledTimeStr = document.getElementById("calendarPostDateTime").value;
 
-  if (!content || !scheduledTimeStr) {
-    alert("Please enter post content and select a scheduled time.");
-    return;
-  }
-
-  const scheduled_time = new Date(scheduledTimeStr);
-  if (isNaN(scheduled_time)) {
-    alert("Please enter a valid date and time.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost:8000/schedulepost", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content: content,
-        scheduled_time: scheduled_time.toISOString()
-      })
-    });
-    const data = await response.json();
-
-    if (response.ok) {
-      alert("Post scheduled successfully!");
-      loadScheduledPosts();
-      // Clear inputs after scheduling
-      document.getElementById("calendarPostContent").value = "";
-      document.getElementById("calendarPostDateTime").value = "";
-    } else {
-      const errorMsg = data.detail || data.message || JSON.stringify(data);
-
-      console.log(data);
-
-      alert("Error scheduling post: " + errorMsg);
+    if (!content || !scheduledTimeStr) {
+        alert("Please enter post content and select a scheduled time.");
+        return;
     }
-  } catch (error) {
-    alert("Network error: " + error.message);
-  }
+
+    const scheduled_time = new Date(scheduledTimeStr);
+    if (isNaN(scheduled_time)) {
+        alert("Please enter a valid date and time.");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8000/schedulepost", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                content: content,
+                scheduled_time: scheduled_time.toISOString()
+            })
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Post scheduled successfully!");
+            loadScheduledPosts();
+            // Clear inputs after scheduling
+            document.getElementById("calendarPostContent").value = "";
+            document.getElementById("calendarPostDateTime").value = "";
+        } else {
+            const errorMsg = data.detail || data.message || JSON.stringify(data);
+            console.log(data);
+            alert("Error scheduling post: " + errorMsg);
+        }
+    } catch (error) {
+        alert("Network error: " + error.message);
+    }
 }
 
-// Viewing all Scheduled Posts. ( It runs automatically when the page finishes loading.)
-
+// Viewing all Scheduled Posts (runs automatically on page load)
 async function loadScheduledPosts() {
-  try {
-    const response = await fetch("http://localhost:8000/scheduledposts");
-    const posts = await response.json();
+    try {
+        const response = await fetch("http://localhost:8000/scheduledposts");
+        const posts = await response.json();
 
-    const list = document.getElementById("scheduledPostsList");
-    list.innerHTML = "";
+        const list = document.getElementById("scheduledPostsList");
+        if (!list) return;
+        list.innerHTML = "";
 
-    posts.forEach(post => {
-      const li = document.createElement("li");
-      li.textContent = `${new Date(post.scheduled_time).toLocaleString()}: ${post.content}`;
-      list.appendChild(li);
-    });
-  } catch (error) {
-    alert("Failed to load scheduled posts: " + error.message);
-  }
+        posts.forEach(post => {
+            const li = document.createElement("li");
+            li.textContent = `${new Date(post.scheduled_time).toLocaleString()}: ${post.content}`;
+            list.appendChild(li);
+        });
+    } catch (error) {
+        alert("Failed to load scheduled posts: " + error.message);
+    }
 }
-// Load posts on page load ( It runs automatically when the page finishes loading.)
-window.onload = loadScheduledPosts;
 
-// <!-- Filling the Generated Post to Scheduling Post Text Area-->
+// Fill generated post into scheduling textarea and focus datetime input
 function fillScheduledPost() {
-  document.getElementById("calendarPostContent").value = latestGeneratedPost;
-  document.getElementById("calendarPostDateTime").focus();
+    document.getElementById("calendarPostContent").value = latestGeneratedPost;
+    if (document.getElementById("calendarPostDateTime")) {
+        document.getElementById("calendarPostDateTime").focus();
+    }
 }
 
 // Show user profile summary on index.html
@@ -230,16 +230,35 @@ async function displayProfileOnIndex() {
     }
 }
 
-// Auto-run on index.html
-if (document.getElementById('profileSummary')) {
-    window.onload = function() {
+// Initialization on page load for all pages
+window.addEventListener('load', function() {
+
+    // Display profile summary if the element exists
+    if (document.getElementById('profileSummary')) {
         displayProfileOnIndex();
-        // call other init functions here if needed
-    };
-}
+    }
 
+    // Auto-fill industry news keyword input if exists
+    if (document.getElementById('industryKeyword')) {
+        autofillIndustryKeywords();
+    }
 
-// Profile form handling (for profile.html)
+    // Fill profile edit form if on profile.html
+    if (document.getElementById('profileForm')) {
+        (async function fillProfileForm() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/profile');
+                if (!res.ok) return;
+                const data = await res.json();
+                document.getElementById('name').value = data.name || "";
+                document.getElementById('keywords').value = data.keywords || "";
+                document.getElementById('industry').value = data.industry || "";
+            } catch {}
+        })();
+    }
+});
+
+// Profile form submission handling (for profile.html)
 if (document.getElementById('profileForm')) {
     document.getElementById('profileForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -260,21 +279,25 @@ if (document.getElementById('profileForm')) {
             if (!response.ok) throw new Error('Failed to save profile.');
             setTimeout(() => {
                 window.location.href = "index.html";
-            }, 1200); // 1.2 seconds confirmation then redirect
+            }, 1200);
         } catch (error) {
             messageDiv.innerText = "Error: " + error.message;
         }
     });
+}
 
-    // Optional: fill profile form with existing values
-    window.onload = async function() {
-        try {
-            const res = await fetch('http://127.0.0.1:8000/profile');
-            if (!res.ok) return;
-            const data = await res.json();
-            document.getElementById('name').value = data.name || "";
-            document.getElementById('keywords').value = data.keywords || "";
-            document.getElementById('industry').value = data.industry || "";
-        } catch {}
-    };
+// Auto-fill industry news keyword input on index.html or relevant pages
+async function autofillIndustryKeywords() {
+    const industryInput = document.getElementById("industryKeyword");
+    if (!industryInput) return;
+
+    try {
+        const profile = await fetchProfile();
+        if (profile) {
+            const combined = [profile.industry, profile.keywords].filter(Boolean).join(" ");
+            industryInput.value = combined;
+        }
+    } catch (e) {
+        // silently ignore errors
+    }
 }

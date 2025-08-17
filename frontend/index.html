@@ -1,111 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LinkedIn Post Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            max-width: 600px;
-        }
-        textarea {
-            width: 100%;
-            height: 100px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            padding: 10px;
-        }
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f3f3f3;
-            border-radius: 5px;
-        }
-    </style>
 </head>
 
 <body>
-  <h1>LinkedIn Post Generator</h1>
-  <div id="profileSummary" style="border:1px solid #0073b1; padding:15px; border-radius:6px; margin-bottom:20px; background:#f0f8ff;">
-    Loading profile... </div>
+    <h1>LinkedIn Post Generator</h1>
 
-  <!-- Post Generation Section -->
-  <div>
-      <label for="prompt">Post Topic or Prompt:</label><br>
-      <textarea id="prompt" rows="4" cols="50" placeholder="Enter post topic or prompt here..."></textarea>
-  </div>
+    <!-- Profile Summary Section -->
+    <div id="profileSummary">
+        Loading profile...
+    </div>
 
-  <div>
-      <label for="postType">Post Type:</label>
-      <select id="postType">
-          <option value="">Select type (optional)</option>
-          <option value="Status Update">Status Update</option>
-          <option value="Article">Article</option>
-          <option value="Poll">Poll</option>
-          <option value="Carousel">Carousel</option>
-      </select>
+    <!-- Post Generation Section -->
+    <div>
+        <label for="prompt">Post Topic or Prompt:</label><br />
+        <textarea id="prompt" rows="4" cols="50" placeholder="Enter post topic or prompt here..."></textarea>
+    </div>
+    <div>
+        <label for="postType">Post Type:</label>
+        <select id="postType">
+            <option value="">Select type (optional)</option>
+            <option value="Status Update">Status Update</option>
+            <option value="Article">Article</option>
+            <option value="Poll">Poll</option>
+            <option value="Carousel">Carousel</option>
+        </select>
+        <label for="tone" style="margin-left: 20px;">Tone:</label>
+        <select id="tone">
+            <option value="">Select tone (optional)</option>
+            <option value="Professional">Professional</option>
+            <option value="Friendly">Friendly</option>
+            <option value="Motivational">Motivational</option>
+            <option value="Informative">Informative</option>
+        </select>
+    </div>
+    <div style="margin-top: 15px;">
+        <button onclick="generatePost()">Generate Post</button>
+    </div>
+    <div id="result" style="margin-top: 20px; white-space: pre-wrap; min-height: 100px; border: 1px solid #ccc; padding: 10px;"></div>
 
-      <label for="tone" style="margin-left: 20px;">Tone:</label>
-      <select id="tone">
-          <option value="">Select tone (optional)</option>
-          <option value="Professional">Professional</option>
-          <option value="Friendly">Friendly</option>
-          <option value="Motivational">Motivational</option>
-          <option value="Informative">Informative</option>
-      </select>
-  </div>
+    <!-- Industry News Section -->
+    <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
+        <h3>Industry News</h3>
+        <input type="text" id="industryKeyword" placeholder="Enter industry keyword" style="width: 250px; padding: 6px;" />
+        <button onclick="fetchIndustryNews()">Show News</button>
+        <div id="newsResults" style="margin-top: 15px; max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+            <!-- News results show here -->
+        </div>
+    </div>
 
-  <div style="margin-top:15px;">
-      <button onclick="generatePost()">Generate Post</button>
-  </div>
+    <div style="margin-top: 30px;">
+        <!-- Filling the Generated Post to Scheduling Post Text Area-->
+        <button onclick="fillScheduledPost()">Use Generated Post for Scheduling</button>
+    </div>
 
-  <div id="result" style="margin-top:20px; white-space: pre-wrap; min-height: 100px; border: 1px solid #ccc; padding: 10px;"></div>
+    <div style="margin-top: 10px;">
+        <!-- LinkedIn Login Section -->
+        <button onclick="window.location.href='http://localhost:8000/linkedin/login'">
+            Login with your LinkedIn Account
+        </button>
+    </div>
 
-  
-  <!-- Filling the Generated Post to Scheduling Post Text Area-->
-  <button onclick="fillScheduledPost()">Schedule This Generated Post</button>
-  
-  <!-- Industry Research Section -->
-  <div>
-    <h3>Industry Research</h3>
-    <input type="text" id="industryKeyword" placeholder="Enter industry keyword" />
-    <button onclick="fetchIndustryNews()">Search</button>
-  </div>
-  <div id="newsResults" style="margin-top: 20px;"></div>
+    <!-- Manual Post Section -->
+    <div style="margin-top: 15px;">
+        <textarea id="postText" placeholder="Write your LinkedIn post here"></textarea><br>
+        <button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
+        <p id="message"></p>
+    </div>
 
-  <!-- LinkedIn Login Section -->
-  <button onclick="window.location.href='http://localhost:8000/linkedin/login'">
-    Login with your LinkedIn Account
-  </button>
+    <!-- Scheduling Posts Section-->
+    <div style="margin-top: 25px;">
+        <h3>Content Calendar & Scheduling</h3>
+        <textarea id="calendarPostContent" placeholder="Enter post content here..."></textarea><br>
+        <input type="datetime-local" id="calendarPostDateTime" /><br>
+        <!-- IMPORTANT: Update button to call correct scheduling function -->
+        <button onclick="schedulePost()">Schedule this Generated Post</button>
+    </div>
 
-  <!-- Manual Post Section -->
-  <textarea id="postText" placeholder="Write your LinkedIn post here"></textarea><br>
-  <button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
-  <p id="message"></p>
+    <!-- Viewing Posts Section-->
+    <div style="margin-top: 20px;">
+        <h4>Scheduled Posts</h4>
+        <ul id="scheduledPostsList"></ul>
+    </div>
 
-  <!-- Scheduling Posts Section-->
-  <div>
-  <h3>Content Calendar & Scheduling</h3>
-  <textarea id="calendarPostContent" placeholder="Enter post content here..."></textarea><br>
-  <input type="datetime-local" id="calendarPostDateTime" /><br>
-  <button onclick="schedulePost()">Schedule Post</button>
-  </div>
-
-  <!-- Viewing Posts Section-->
-  <div>
-    <h4>Scheduled Posts</h4>
-    <ul id="scheduledPostsList"></ul>
-  </div>
-
-
-
-  
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
