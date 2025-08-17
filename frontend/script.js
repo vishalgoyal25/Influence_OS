@@ -3,7 +3,7 @@ let latestGeneratedPost = "";
 // Fetch Profile data from backend
 async function fetchProfile() {
     try {
-        const res = await fetch('http://127.0.0.1:8000/profile');
+        const res = await fetch(`${BACKEND_URL}/profile`);
         if (!res.ok) return null;
         return await res.json();
     } catch {
@@ -37,7 +37,7 @@ async function generatePost() {
     };
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/generatepost", {
+        const response = await fetch(`${BACKEND_URL}/generatepost`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -70,7 +70,7 @@ async function postToLinkedIn() {
     linkedinBtn.disabled = true; // Disable button to prevent double click
     resultDiv.innerHTML += "<br>Posting to LinkedIn...";
     try {
-        const response = await fetch("http://127.0.0.1:8000/linkedin/post", {
+        const response = await fetch(`${BACKEND_URL}/linkedin/post`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
@@ -102,7 +102,7 @@ async function fetchIndustryNews() {
     resultDiv.innerHTML = "Loading news...";
 
     try {
-        const response = await fetch(`http://127.0.0.1:8000/industry-news?keyword=${encodeURIComponent(keywordValue)}`);
+        const response = await fetch(`${BACKEND_URL}/industry-news?keyword=${encodeURIComponent(keywordValue)}`);
         const data = await response.json();
 
         if (data.error) {
@@ -131,7 +131,6 @@ async function fetchIndustryNews() {
     }
 }
 
-
 // Scheduling Post (Content Calendar)
 async function schedulePost() {
     const content = document.getElementById("calendarPostContent").value.trim();
@@ -149,7 +148,7 @@ async function schedulePost() {
     }
 
     try {
-        const response = await fetch("http://localhost:8000/schedulepost", {
+        const response = await fetch(`${BACKEND_URL}/schedulepost`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -178,7 +177,7 @@ async function schedulePost() {
 // Viewing all Scheduled Posts (runs automatically on page load)
 async function loadScheduledPosts() {
     try {
-        const response = await fetch("http://localhost:8000/scheduledposts");
+        const response = await fetch(`${BACKEND_URL}/scheduledposts`);
         const posts = await response.json();
 
         const list = document.getElementById("scheduledPostsList");
@@ -206,7 +205,7 @@ function fillScheduledPost() {
 // Show user profile summary on index.html
 async function displayProfileOnIndex() {
     try {
-        const res = await fetch('http://127.0.0.1:8000/profile');
+        const res = await fetch(`${BACKEND_URL}/profile`);
         if (!res.ok) {
             document.getElementById('profileSummary').innerHTML = `
                 <h3>Welcome!</h3>
@@ -232,7 +231,6 @@ async function displayProfileOnIndex() {
 
 // Initialization on page load for all pages
 window.addEventListener('load', function() {
-
     // Display profile summary if the element exists
     if (document.getElementById('profileSummary')) {
         displayProfileOnIndex();
@@ -247,7 +245,7 @@ window.addEventListener('load', function() {
     if (document.getElementById('profileForm')) {
         (async function fillProfileForm() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/profile');
+                const res = await fetch(`${BACKEND_URL}/profile`);
                 if (!res.ok) return;
                 const data = await res.json();
                 document.getElementById('name').value = data.name || "";
@@ -271,7 +269,7 @@ if (document.getElementById('profileForm')) {
 
         messageDiv.innerText = "Profile saved! Redirecting to home...";
         try {
-            const response = await fetch('http://127.0.0.1:8000/profile', {
+            const response = await fetch(`${BACKEND_URL}/profile`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(profileData),
