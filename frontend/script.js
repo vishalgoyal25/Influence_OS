@@ -207,6 +207,7 @@ async function displayProfileOnIndex() {
     try {
         const res = await fetch(`${BACKEND_URL}/profile`);
         if (!res.ok) {
+            // Show welcome and prompt to set up profile even if profile not found
             document.getElementById('profileSummary').innerHTML = `
                 <h3>Welcome!</h3>
                 <p>No profile set. <a href="profile.html" style="color:#0073b1;">Set up your profile</a></p>
@@ -215,6 +216,7 @@ async function displayProfileOnIndex() {
         }
         const data = await res.json();
 
+        // Display profile data if available, plus Edit Profile link
         document.getElementById('profileSummary').innerHTML = `
             <h3>Welcome, ${data.name || 'User'}!</h3>
             <p><strong>Industry:</strong> ${data.industry || 'N/A'}</p>
@@ -222,9 +224,10 @@ async function displayProfileOnIndex() {
             <a href="profile.html" style="color:#0073b1;">Edit Profile</a>
         `;
     } catch {
+        // On error also show profile setup link
         document.getElementById('profileSummary').innerHTML = `
             <h3>Welcome!</h3>
-            <p>Profile unavailable.</p>
+            <p>Profile unavailable. <a href="profile.html" style="color:#0073b1;">Set up your profile</a></p>
         `;
     }
 }
