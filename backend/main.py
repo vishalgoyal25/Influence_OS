@@ -28,7 +28,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "http://localhost:5500"
+        "http://localhost:5500",
+        "https://influence-os-1-zc2y.onrender.com" # Deployed Frontend URL
     ],
     allow_credentials= True,
     allow_methods=["*"],
