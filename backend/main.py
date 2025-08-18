@@ -16,6 +16,8 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from backend.database import UserProfile, get_db
 
+import traceback
+
 app = FastAPI(title="Linkedin AI Agent API", version="1.0")
 
 # Add session middleware for OAuth token storage
@@ -44,13 +46,13 @@ from typing import Optional
 class PromptRequest(BaseModel):
     prompt: Optional[str] = None
     max_length: int = 200
-    post_type: str = None
-    tone: str = None
+    post_type: Optional[str] = None
+    tone: Optional[str] = None
 
     # Add profile info fields optional to accept frontend data if sent
-    name: str = ""
-    keywords: str = ""
-    industry: str = ""
+    name: Optional[str] = ""
+    keywords: Optional[str] = ""
+    industry: Optional[str] = ""
 
 @app.get("/")
 def home():
@@ -58,54 +60,60 @@ def home():
 
 @app.post("/generatepost")
 def GeneratePost(request: PromptRequest, db: Session = Depends(get_db)):
-
-    # Fetch profile from DB if not provided in request
-    if not (request.name and request.keywords and request.industry):
-        profile = db.query(UserProfile).filter(UserProfile.id == 1).first()
-        if profile:
-            name = profile.name
-            keywords = profile.keywords or ""
-            industry = profile.industry or ""
+    try:
+        # Fetch profile from DB if not provided in request
+        if not (request.name and request.keywords and request.industry):
+            profile = db.query(UserProfile).filter(UserProfile.id == 1).first()
+            if profile:
+                name = profile.name
+                keywords = profile.keywords or ""
+                industry = profile.industry or ""
+            else:
+                name, keywords, industry = "", "", ""
         else:
-            name, keywords, industry = "", "", ""
-    else:
-        name = request.name
-        keywords = request.keywords
-        industry = request.industry
+            name = request.name
+            keywords = request.keywords
+            industry = request.industry
 
-    # Build enhanced prompt including profile info
-    details = []
-    if request.post_type:
-        details.append(f"Post Type: {request.post_type}.")
-    if request.tone:
-        details.append(f"Tone: {request.tone}.")
-    if name:
-        details.append(f"User Name: {name}.")
-    if industry:
-        details.append(f"Industry: {industry}.")
-    if keywords:
-        details.append(f"Keywords/Skills: {keywords}.")
+        # Build enhanced prompt including profile info
+        details = []
+        if request.post_type:
+            details.append(f"Post Type: {request.post_type}.")
+        if request.tone:
+            details.append(f"Tone: {request.tone}.")
+        if name:
+            details.append(f"User Name: {name}.")
+        if industry:
+            details.append(f"Industry: {industry}.")
+        if keywords:
+            details.append(f"Keywords/Skills: {keywords}.")
 
-    full_prompt = "Generate a LinkedIn post."
-    if details:
-        full_prompt += " " + " ".join(details)
-    if request.prompt:
-        full_prompt += f" Topic/Context: {request.prompt}"
+        full_prompt = "Generate a LinkedIn post."
+        if details:
+            full_prompt += " " + " ".join(details)
+        if request.prompt:
+            full_prompt += f" Topic/Context: {request.prompt}"
+        
+        # Generate post with AI
+        post_content= Generate_Linkedin_Post(prompt=full_prompt,
+                                            max_length=request.max_length,
+                                            post_type=request.post_type,
+                                            tone=request.tone)
+
+        return {"Prompt": request.prompt,
+                "PostType":request.post_type,
+                "Tone":request.tone,
+                
+                "Name": name,
+                "Keywords": keywords,
+                "Industry": industry,
+                "Generated Post": post_content }
     
-    # Generate post with AI
-    post_content= Generate_Linkedin_Post(prompt=full_prompt,
-                                        max_length=request.max_length,
-                                        post_type=request.post_type,
-                                        tone=request.tone)
-
-    return {"Prompt": request.prompt,
-            "PostType":request.post_type,
-            "Tone":request.tone,
-            
-            "Name": name,
-            "Keywords": keywords,
-            "Industry": industry,
-            "Generated Post": post_content }
+    except Exception as e:
+        # Log the traceback on the server console/logs
+        traceback.print_exc()
+        # Return error message in client-friendly JSON format
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 @app.get("/getposts")
