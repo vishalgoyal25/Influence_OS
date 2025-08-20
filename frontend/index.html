@@ -58,20 +58,6 @@
         <button onclick="fillScheduledPost()">Use Generated Post for Scheduling</button>
     </div>
 
-    <div style="margin-top: 10px;">
-        <!-- LinkedIn Login Section -->
-        <button onclick="window.location.href='http://localhost:8000/linkedin/login'">
-            Login with your LinkedIn Account
-        </button>
-    </div>
-
-    <!-- Manual Post Section -->
-    <div style="margin-top: 15px;">
-        <textarea id="postText" placeholder="Write your LinkedIn post here"></textarea><br>
-        <button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
-        <p id="message"></p>
-    </div>
-
     <!-- Scheduling Posts Section-->
     <div style="margin-top: 25px;">
         <h3>Content Calendar & Scheduling</h3>
@@ -85,6 +71,20 @@
     <div style="margin-top: 20px;">
         <h4>Scheduled Posts</h4>
         <ul id="scheduledPostsList"></ul>
+    </div>
+    
+    <div style="margin-top: 10px;">
+        <!-- LinkedIn Login Section -->
+        <button onclick="window.location.href='http://localhost:8000/linkedin/login'">
+            Login with your LinkedIn Account
+        </button>
+    </div>
+
+    <!-- Manual Post Section -->
+    <div style="margin-top: 15px;">
+        <textarea id="postText" placeholder="Write your LinkedIn post here"></textarea><br>
+        <button id="linkedinBtn" onclick="postToLinkedIn()" disabled>Post to LinkedIn</button>
+        <p id="message"></p>
     </div>
     
     <script src="config.js"></script>
