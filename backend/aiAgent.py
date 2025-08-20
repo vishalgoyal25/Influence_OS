@@ -31,12 +31,12 @@ def Generate_Linkedin_Post(prompt:str, max_length: int = 200,
     if prompt:
         full_prompt += f" Topic/Context: {prompt}"
 
-    url = "http://localhost:11434/api/generate"
+    url = "http://localhost:8000/generatepost"
     payload = {
-        "model": "gemma:2b",
         "prompt": full_prompt,
-        "max_tokens": max_length,
-        "stream": False
+        "max_length": max_length,
+        "post_type": post_type,
+        "tone": tone
     }
 
     response = requests.post(url, json=payload)
